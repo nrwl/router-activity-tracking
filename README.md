@@ -1,27 +1,25 @@
-# CancelNavigation
+# Activity Tracking and Navigation Cancelation
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.0.4.
+## Navigation Cancelation
 
-## Development server
+Open `app.module.ts` and find `SlowResolver`. The resolver is used when clicking on "bbb". In Angular 6, if you click on "bbb" and then on "ccc", it would wait for the resolver to complete. In Angular 7 it won't. The implementation of the router has changed from `concatMap` to `switchMap`. So you won't have to do anything in regards to cancelation if you use Angular 7. In Angular 6, you would have to do something like this:
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+```
+export class SlowResolver implements CancelableResolve<any> {
+  cancelableResolve() {
+    console.log('start resolving');
+    return timer(5000).pipe(map(() => true), tap(() => {
+      console.log('resolved');
+    }));
+  }
+}
+```
 
-## Code scaffolding
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Activity Tracking
 
-## Build
+There are many ways to implement activity tracking. This repo shows how to do in a declarative way.
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+1. The repo defines `RouterWithActivityTracking`. It's the same as the built-in router, except its `navigate` and `navigateByUrl` take an extra param--`source`.
+2. The repo defines `RouterLinkWithActivityTracking`. It's the same as the built-in directive, except it takes an extra input--`source`.`
 
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
